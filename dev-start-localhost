@@ -1,0 +1,2 @@
+#!/bin/sh
+NA_R6_HOST=http://localhost:4000/ NA_IRC_HOST=localhost NA_DEBUG=1 perl6 bin/na.p6
