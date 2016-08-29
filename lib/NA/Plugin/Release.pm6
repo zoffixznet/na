@@ -2,7 +2,7 @@ unit class NA::Plugin::Release;
 use NA::UA;
 use URI::Escape;
 
-has $.r6-url = %*ENV<NA_R6_HOST> || 'https://perl6.fail/';
+has $.r6-url = %*ENV<NA_R6_HOST> || 'http://perl6.fail/';
 
 multi method irc-to-me ($e where /:i ^ 'status' $ /) {
     my $res = try {
