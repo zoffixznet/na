@@ -7,15 +7,22 @@ method launch (
     :&out, :&err
 ) {
     $!proc = Proc::Async.new: :out, :err, :w,
-        'ssh', "{"$user@" if $user}$host", '-T';
+        'ssh', '-o', 'StrictHostKeyChecking no',
+            "{"$user@" if $user}$host", '-T';
 
     $!proc.stdout.tap: &out if &out;
     $!proc.stderr.tap: &err if &err;
     $!prom = $!proc.start;
 }
 
-method send (Str $what) {
+multi method send (Str $what) {
     await $!proc.write: "$what\n".encode;
+
+    CATCH { default { say 'Remote shell exploded. Aborting release'; } }
+}
+
+multi method send (Array $what) {
+    await $!proc.write: "$what[0]".encode;
 
     CATCH { default { say 'Remote shell exploded. Aborting release'; } }
 }

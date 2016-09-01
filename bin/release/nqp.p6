@@ -2,23 +2,25 @@ use lib <lib>;
 use NA::RemoteShell;
 use Config::From;
 
-constant $user = 'zoffix';
-constant $host = 'perl6.party';
+constant $user = 'cpan'; #'zoffix';
+constant $host = '104.196.101.176'; #'perl6.party';
 constant $nqp-repo = 'https://github.com/zoffixznet/nqp';
 constant $release-dir = '/tmp/release/';
 constant $moarvm-ver  = '2016.08';
 constant $nqp-ver     = '2016.09';
 constant $tag-email   = 'cpan@zoffix.com';
-constant $gpg-keyphrase is from-config;
+my $gpg-keyphrase is from-config;
 
 constant $dir-temp     = $release-dir ~ 'temp';
 constant $dir-nqp      = $release-dir ~ 'nqp';
 constant $dir-tarballs = $release-dir ~ 'tarballs';
 
-given NA::RemoteShell.new {
-    $^s.launch: :&out, :$user, :$host;
-    $^s.send: $_
-        for 'hostname',
+given NA::RemoteShell.new -> $shell {
+    $shell.launch: :&out, :err(&out), :$user, :$host;
+    $shell.send: $_
+        for
+            'set -x',
+            'hostname',
             "source /home/$user/.bashrc",
 
             # Start with a blank slate:
@@ -41,45 +43,58 @@ given NA::RemoteShell.new {
                     'git push',
 
                 # Build and test:
-                'perl Configure.pl --gen-moar --backend=moar,jvm &&'
-                    ~ 'make && make m-test && make j-test &&'
+                'perl Configure.pl --gen-moar --backend=moar &&'
+                    ~ 'make && ' #make m-test && make j-test &&'
                     ~ 'echo "NeuralAnomaly RELEASE STATUS: nqp tests OK"',
 
                 # Make release and copy over the tarball to testing area
                 "make release VERSION=$nqp-ver",
-                "cp nqp-$nqp-ver.tar.gz $dir-temp",
-                "cd $dir-temp",
-                "tar -xvvf nqp-$nqp-ver.tar.gz",
-                "cd nqp-$nqp-ver",
-
-                # Build and test the release tarball
-                'perl Configure.pl --gen-moar --backend=moar,jvm &&'
-                    ~ 'make && make m-test && make j-test &&'
-                    ~ 'echo "NeuralAnomaly RELEASE STATUS: nqp'
-                    ~ ' release tarball tests OK"',
-
-                # Go back to nqp dir so we could sign stuff
-                "cd $dir-nqp",
+                    # "cp nqp-$nqp-ver.tar.gz $dir-temp",
+                    # "cd $dir-temp",
+                    # "tar -xvvf nqp-$nqp-ver.tar.gz",
+                    # "cd nqp-$nqp-ver",
+                    #
+                    # # Build and test the release tarball
+                    # 'perl Configure.pl --gen-moar --backend=moar,jvm &&'
+                    #     ~ 'make && make m-test && make j-test &&'
+                    #     ~ 'echo "NeuralAnomaly RELEASE STATUS: nqp'
+                    #     ~ ' release tarball tests OK"',
+                    #
+                    # # Go back to nqp dir so we could sign stuff
+                    # "cd $dir-nqp",
 
                 # Tags:
+                q{echo '/usr/bin/gpg --passphrase-fd 0 --batch --no-tty}
+                    ~ q{ "$@"' > na-gpg},
+                'chmod +x na-gpg',
+                q{git config gpg.program './na-gpg'},
                 "git tag -u $tag-email -s -a -m"
-                    ~ " 'tag release $nqp-ver' $nqp-ver",
-                $gpg-keyphrase;
+                    ~ " 'tag release $nqp-ver' $nqp-ver || exit 1",
+                [$gpg-keyphrase],
                 'git push --tags',
 
                 # Tarball:
-                "gpg -b --armor nqp-$nqp-ver.tar.gz",
-                $pgp-keyphrase,
+                'gpg --batch --no-tty --passphrase-fd 0 -b'
+                    ~ " --armor nqp-$nqp-ver.tar.gz || exit 1",
+                [$gpg-keyphrase],
                 "cp nqp-$nqp-ver.tar.gz* $dir-tarballs",
 
                 "cd $release-dir",
+
+                # Indicate release succeeded:
+                'echo "NeuralAnomaly RELEASE STATUS: nqp'
+                    ~ ' release DONE"',
             ;
-    $^s.end;
+    $shell.end;
 }
 
 sub out {
-    "Remote shell: $^v".print;
+    # Should never happen, but if we somehow manage to splurge gpg pass into
+    # the output, scrub it.
+    my $mes = $^v.subst: :g, $gpg-keyphrase, '*****';
+    # /<{$gpg-keyphrase.comb.map({$_ eq "'" ?? "\\'" !! qq{'$_'}}).join('\s*')}>/, '*********';
 
+    "Remote shell: $mes".print;
     say "#### THIS IS WHERE WE SEND MESSSAGE $<msg>"
-        if $^v ~~ /'NeuralAnomaly RELEASE STATUS: ' $<msg>=\N+/;
+        if $mes ~~ /'NeuralAnomaly RELEASE STATUS: ' $<msg>=\N+/;
 }
