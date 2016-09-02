@@ -1,31 +1,8 @@
-use lib <lib>;
-use NA::RemoteShell;
-use Config::From;
+unit class NA::ReleaseScripts::NQP;
+use NA::ReleaseConstants;
 
-constant $user = 'cpan'; #'zoffix';
-constant $host = '104.196.143.15'; #'perl6.party';
-constant $nqp-repo = 'https://github.com/zoffixznet/nqp';
-constant $release-dir = '/tmp/release/';
-constant $moar-ver    = '2016.08-32-ge52414d';
-constant $nqp-ver     = '2016.10';
-constant $tag-email   = 'cpan@zoffix.com';
-my $gpg-keyphrase is from-config;
-my $github-user is from-config;
-my $github-pass is from-config;
-
-constant $dir-temp     = $release-dir ~ 'temp';
-constant $dir-nqp      = $release-dir ~ 'nqp';
-constant $dir-tarballs = $release-dir ~ 'tarballs';
-
-constant $na-msg = 'NeuralAnomaly RELEASE STATUS:';
-constant $with-github-credentials = qq{(sleep 6; echo -e '$github-user\\n'; }
-    ~ qq{sleep 6; echo -e '$github-pass\\n'; sleep 10) | unbuffer -p};
-constant $with-gpg-passphrase
-    = "(sleep 6; echo '$gpg-keyphrase'; sleep 10) | unbuffer -p";
-
-my NA::RemoteShell $shell .= new;
-$shell.launch: :&out, :err(&out), :$user, :$host;
-$shell.send: qq:to/SHELL_SCRIPT_END/;
+method script {
+    return qq:to/SHELL_SCRIPT_END/;
     set -x
     unset HISTFILE
     hostname
@@ -91,15 +68,4 @@ $shell.send: qq:to/SHELL_SCRIPT_END/;
     # Indicate release succeeded:
     echo '$na-msg nqp release DONE'                                 || exit 1
     SHELL_SCRIPT_END
-$shell.end;
-
-sub out {
-    # Scrub sensitive info from output
-    my $mes = $^v.subst(:g, $gpg-keyphrase, '*****')
-                 .subst(:g, $github-user,   '*****')
-                 .subst(:g, $github-pass,   '*****');
-
-    "Remote shell: $mes".print;
-    say "#### THIS IS WHERE WE SEND MESSSAGE $<msg>"
-        if $mes ~~ /'NeuralAnomaly RELEASE STATUS: ' $<msg>=\N+/;
 }
