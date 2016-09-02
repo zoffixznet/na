@@ -15,13 +15,15 @@ method launch (
     $!prom = $!proc.start;
 }
 
-multi method send (Str $what) {
+method send (Str $what) {
     CATCH { default { say 'Remote shell exploded. Aborting release'; } }
 
     await $!proc.write: "$what\n".encode;
 }
 
 method end {
+    return unless $!prom.defined;
+
     self.send: "\nexit;";
     my $result-proc = await $!prom;
     say "ABNORMAL EXIT! Aborting release" if $!prom ~~ Broken;

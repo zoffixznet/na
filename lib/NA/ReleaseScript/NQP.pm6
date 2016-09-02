@@ -1,4 +1,4 @@
-unit class NA::ReleaseScripts::NQP;
+unit class NA::ReleaseScript::NQP;
 use NA::ReleaseConstants;
 
 method script {

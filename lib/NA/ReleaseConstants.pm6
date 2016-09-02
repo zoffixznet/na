@@ -10,9 +10,12 @@ constant $nqp-ver       is export = '2016.09';
 constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
 constant $release-dir   is export = '/tmp/release/';
 constant $tag-email     is export = 'cpan@zoffix.com';
-constant $gpg-keyphrase is export = conf<gpg-keyphrase>;
-constant $github-user   is export = conf<github-user>;
-constant $github-pass   is export = conf<github-pass>;
+constant $gpg-keyphrase is export = conf<gpg-keyphrase>
+                                  // die 'Missing gpg-keyphrase in config.json';
+constant $github-user   is export = conf<github-user>
+                                  // die 'Missing github-user in config.json';
+constant $github-pass   is export = conf<github-pass>
+                                  // die 'Missing github-pass in config.json';
 constant $dir-temp      is export = $release-dir ~ 'temp';
 constant $dir-nqp       is export = $release-dir ~ 'nqp';
 constant $dir-tarballs  is export = $release-dir ~ 'tarballs';
