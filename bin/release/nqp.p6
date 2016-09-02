@@ -18,8 +18,8 @@ constant $dir-nqp      = $release-dir ~ 'nqp';
 constant $dir-tarballs = $release-dir ~ 'tarballs';
 
 constant $na-msg = 'NeuralAnomaly RELEASE STATUS:';
-constant $with-github-credentials = qq{(sleep 6; echo -e '$github-user\n'; }
-    ~ qq{sleep 6; echo -e '$github-pass\n'; sleep 10) | unbuffer -p};
+constant $with-github-credentials = qq{(sleep 6; echo -e '$github-user\\n'; }
+    ~ qq{sleep 6; echo -e '$github-pass\\n'; sleep 10) | unbuffer -p};
 constant $with-gpg-passphrase
     = "(sleep 6; echo '$gpg-keyphrase'; sleep 10) | unbuffer -p";
 
@@ -90,7 +90,7 @@ $shell.send: qq:to/SHELL_SCRIPT_END/;
 
     # Indicate release succeeded:
     echo '$na-msg nqp release DONE'                                 || exit 1
-SHELL_SCRIPT_END
+    SHELL_SCRIPT_END
 $shell.end;
 
 sub out {
