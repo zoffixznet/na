@@ -16,15 +16,9 @@ method launch (
 }
 
 multi method send (Str $what) {
+    CATCH { default { say 'Remote shell exploded. Aborting release'; } }
+
     await $!proc.write: "$what\n".encode;
-
-    CATCH { default { say 'Remote shell exploded. Aborting release'; } }
-}
-
-multi method send (Array $what) {
-    await $!proc.write: "$what[0]".encode;
-
-    CATCH { default { say 'Remote shell exploded. Aborting release'; } }
 }
 
 method end {

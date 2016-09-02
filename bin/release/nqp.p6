@@ -3,13 +3,15 @@ use NA::RemoteShell;
 use Config::From;
 
 constant $user = 'cpan'; #'zoffix';
-constant $host = '104.196.101.176'; #'perl6.party';
+constant $host = '104.196.143.15'; #'perl6.party';
 constant $nqp-repo = 'https://github.com/zoffixznet/nqp';
 constant $release-dir = '/tmp/release/';
-constant $moarvm-ver  = '2016.08';
-constant $nqp-ver     = '2016.09';
+constant $moarvm-ver  = '2016.08-32-ge52414d';
+constant $nqp-ver     = '2016.10';
 constant $tag-email   = 'cpan@zoffix.com';
 my $gpg-keyphrase is from-config;
+my $github-user is from-config;
+my $github-pass is from-config;
 
 constant $dir-temp     = $release-dir ~ 'temp';
 constant $dir-nqp      = $release-dir ~ 'nqp';
@@ -20,6 +22,7 @@ given NA::RemoteShell.new -> $shell {
     $shell.send: $_
         for
             'set -x',
+            'unset HISTFILE',
             'hostname',
             "source /home/$user/.bashrc",
 
@@ -32,51 +35,53 @@ given NA::RemoteShell.new -> $shell {
                 "cd nqp",
 
                 # Bump MoarVM version:
-                    "echo '$moarvm-ver' > tools/build/MOAR_REVISION",
-                    "echo '$moarvm-ver' > tools/build/MOAR_REVISION",
-                    "git commit -m 'bump MoarVM version to $moarvm-ver'"
-                        ~ ' tools/build/MOAR_REVISION',
+                "echo '$moarvm-ver' > tools/build/MOAR_REVISION",
+                "echo '$moarvm-ver' > tools/build/MOAR_REVISION",
+                "git commit -m 'bump MoarVM version to $moarvm-ver'"
+                    ~ ' tools/build/MOAR_REVISION',
 
                 # Bump nqp version:
-                    "echo '$nqp-ver' > VERSION",
-                    "git commit -m 'bump VERSION to $nqp-ver' VERSION",
-                    'git push',
+                "echo '$nqp-ver' > VERSION",
+                "git commit -m 'bump VERSION to $nqp-ver' VERSION",
+                qq{(sleep 2; echo -e '$github-user\n'; sleep 2; echo }
+                    ~ qq{-e '$github-pass\n'; sleep 2) | unbuffer -p git push},
 
                 # Build and test:
-                'perl Configure.pl --gen-moar --backend=moar &&'
-                    ~ 'make && ' #make m-test && make j-test &&'
-                    ~ 'echo "NeuralAnomaly RELEASE STATUS: nqp tests OK"',
+                'perl Configure.pl --gen-moar --backend=moar,jvm &&'
+                    ~ 'make && make m-test && make j-test &&'
+                    ~ 'echo "NeuralAnomaly RELEASE STATUS: nqp tests OK" || '
+                    ~ 'exit 1',
 
                 # Make release and copy over the tarball to testing area
                 "make release VERSION=$nqp-ver",
-                    # "cp nqp-$nqp-ver.tar.gz $dir-temp",
-                    # "cd $dir-temp",
-                    # "tar -xvvf nqp-$nqp-ver.tar.gz",
-                    # "cd nqp-$nqp-ver",
-                    #
-                    # # Build and test the release tarball
-                    # 'perl Configure.pl --gen-moar --backend=moar,jvm &&'
-                    #     ~ 'make && make m-test && make j-test &&'
-                    #     ~ 'echo "NeuralAnomaly RELEASE STATUS: nqp'
-                    #     ~ ' release tarball tests OK"',
-                    #
-                    # # Go back to nqp dir so we could sign stuff
-                    # "cd $dir-nqp",
+                "cp nqp-$nqp-ver.tar.gz $dir-temp",
+                "cd $dir-temp",
+                "tar -xvvf nqp-$nqp-ver.tar.gz",
+                "cd nqp-$nqp-ver",
+
+                # Build and test the release tarball
+                'perl Configure.pl --gen-moar --backend=moar,jvm &&'
+                    ~ 'make && make m-test && make j-test &&'
+                    ~ 'echo "NeuralAnomaly RELEASE STATUS: nqp'
+                    ~ ' release tarball tests OK" || '
+                    ~ 'exit 1',
+
+                # Go back to nqp dir so we could sign stuff
+                "cd $dir-nqp",
 
                 # Tags:
-                q{echo '/usr/bin/gpg --passphrase-fd 0 --batch --no-tty}
-                    ~ q{ "$@"' > na-gpg},
-                'chmod +x na-gpg',
-                q{git config gpg.program './na-gpg'},
-                "git tag -u $tag-email -s -a -m"
-                    ~ " 'tag release $nqp-ver' $nqp-ver || exit 1",
-                [$gpg-keyphrase],
-                'git push --tags',
+                "(sleep 3; echo '$gpg-keyphrase'; sleep 10) | "
+                    ~ "unbuffer -p git tag -u $tag-email -s -a -m "
+                    ~ "'tag release $nqp-ver' $nqp-ver || exit 1",
+
+                qq{(sleep 3; echo -e '$github-user\n'; sleep 3; echo }
+                    ~ qq{-e '$github-pass\n'; sleep 10) | }
+                    ~ 'unbuffer -p git push --tags || exit 1',
 
                 # Tarball:
                 'gpg --batch --no-tty --passphrase-fd 0 -b'
                     ~ " --armor nqp-$nqp-ver.tar.gz || exit 1",
-                [$gpg-keyphrase],
+                $gpg-keyphrase,
                 "cp nqp-$nqp-ver.tar.gz* $dir-tarballs",
 
                 "cd $release-dir",
