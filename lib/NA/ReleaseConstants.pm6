@@ -2,7 +2,7 @@ unit module NA::ReleaseConstants;
 use NA::Config;
 
 constant $user          is export = 'cpan';
-constant $host          is export = '104.196.143.15';
+constant $host          is export = '104.196.37.91';
 # constant $user          is export = 'zoffix';
 # constant $host          is export = 'perl6.party';
 constant $moar-ver      is export = '2016.08-35-g5108035';

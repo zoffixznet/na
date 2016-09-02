@@ -22,9 +22,9 @@ method send (Str $what) {
 }
 
 method end {
-    return unless $!prom.defined;
-
     self.send: "\nexit;";
     my $result-proc = await $!prom;
-    say "ABNORMAL EXIT! Aborting release" if $!prom ~~ Broken;
+    return "ABNORMAL EXIT! Release aborted at: $*SCRIPT_STAGE"
+        if $result-proc.exitcode != 0;
+    return Nil;
 }
