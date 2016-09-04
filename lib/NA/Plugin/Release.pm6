@@ -9,7 +9,10 @@ multi method irc-to-me ($e where /:i ^ ['status' | 'stats'] $ /) {
         ua-get-json $!r6-url ~ "release/stats.json"
     } or return 'Error accessing R6 API';
 
-    my $status = $res<unreviewed> || $res<blockers> ?? '✘' !! '✔';
+    my $status = '✔';
+    $status    = '✘'
+        if $res<unreviewed_tickets> or $res<blockers>
+            or $res<unreviewed_commits>;
 
     return "[$status] Next release $res<when_release>."
         ~ " Since last release, there are $res<total_tickets> new"
