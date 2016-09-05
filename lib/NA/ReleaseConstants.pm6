@@ -8,6 +8,8 @@ constant $host          is export = '104.196.37.91';
 constant $moar-ver      is export = '2016.08-35-g5108035';
 constant $nqp-ver       is export = '2016.09';
 constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
+constant $doc-repo      is export = 'https://github.com/perl6/doc';
+constant $rakudo-repo   is export = 'https://github.com/zoffixznet/rakudo';
 constant $release-dir   is export = '/tmp/release/';
 constant $tag-email     is export = 'cpan@zoffix.com';
 constant $gpg-keyphrase is export = conf<gpg-keyphrase>
@@ -18,6 +20,8 @@ constant $github-pass   is export = conf<github-pass>
                                   // die 'Missing github-pass in config.json';
 constant $dir-temp      is export = $release-dir ~ 'temp';
 constant $dir-nqp       is export = $release-dir ~ 'nqp';
+constant $dir-rakudo    is export = $release-dir ~ 'rakudo';
+constant $dir-doc       is export = $release-dir ~ 'doc';
 constant $dir-tarballs  is export = $release-dir ~ 'tarballs';
 constant $na-msg        is export = 'NeuralAnomaly RELEASE STATUS:';
 

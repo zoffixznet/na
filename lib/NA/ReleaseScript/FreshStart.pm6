@@ -9,6 +9,8 @@ method script {
     cd $release-dir                                                 &&
     mkdir $dir-temp                                                 &&
     mkdir $dir-nqp                                                  &&
+    mkdir $dir-rakudo                                               &&
+    mkdir $dir-doc                                                  &&
     mkdir $dir-tarballs                                             || exit 1
     SHELL_SCRIPT_END
 }
