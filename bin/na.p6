@@ -11,7 +11,7 @@ use NA::Plugin::Release;
 
 class NA::Info {
     multi method irc-to-me ($ where /^\s* help \s*$/) {
-        "it's complicated";
+        "stats | blockers";
     }
     multi method irc-to-me ($ where /^\s* source \s*$/) {
         "See: https://github.com/zoffixznet/na";
