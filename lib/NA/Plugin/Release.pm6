@@ -20,3 +20,22 @@ multi method irc-to-me ($e where /:i ^ ['status' | 'stats'] $ /) {
         ~ " and $res<blockers> blockers) and $res<unreviewed_commits>"
         ~ " unreviewed commits. See $res<url> for details";
 }
+
+multi method irc-to-me ($e where /:i ^ 'blockers' $ /) {
+    my $res = try {
+        ua-get-json $!r6-url ~ "release/blockers.json"
+    } or return 'Error accessing R6 API';
+
+    return 'There are no release blockers' unless $res<tickets>.elems;
+
+    my $n = $res<total_blockers>;
+    $e.reply: "There {$n > 1 ?? 'are' !! 'is'} $n release "
+        ~ "blocker{'s' if $n > 1}. See $res<url>";
+
+    # Avoid too much spam; print only the four
+    unless $n > 4 {
+        $e.reply: "{.<url>} : {.<subject>}" for |$res<tickets>;
+    };
+
+    Nil;
+}
