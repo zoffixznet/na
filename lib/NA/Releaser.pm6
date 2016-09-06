@@ -18,7 +18,7 @@ submethod BUILD {
     # This is important to send at the start so we don't accidentally shove
     # sensitive stuff into history file. Let's not rely on release scripts
     # to take care of this.
-    $!sell.send: qq:to/END/;
+    $!shell.send: qq:to/END/;
         set -x
         unset HISTFILE
         hostname

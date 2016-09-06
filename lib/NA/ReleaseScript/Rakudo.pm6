@@ -3,14 +3,26 @@ use NA::ReleaseConstants;
 
 method script {
     return qq:to/SHELL_SCRIPT_END/;
+    # {$*SCRIPT_STAGE = 'Rakudo: clone Rakudo'}
+    git clone $rakudo-repo $dir-rakudo                              || exit 1
+
     # {$*SCRIPT_STAGE = 'Rakudo: generate release announcement'}
     if [ ! -e docs/announce/$rakudo-ver.md ] ; then
-        git clone $doc-repo $dir-doc                                &&
+        rm -fr $dir-temp
+        mkdir $dir-temp
+        cd $dir-temp
+        git clone $nqp-repo
+        git clone $doc-repo
+        git clone $moar-repo
+        git clone $roast-repo
+        cd $dir-rakudo
         $*EXECUTABLE tools/create-release-announcement.pl       \\
             > docs/announce/$rakudo-ver.md                          &&
         git commit -m 'Generate release announcement for        \\
             $rakudo-ver' docs/announce/$rakudo-ver.md               || exit 1
     fi
+
+    cd $dir-rakudo                                                  || exit 1
 
     # {$*SCRIPT_STAGE = 'Rakudo: bump NQP and Rakudo versions'}
     echo $nqp-ver > tools/build/NQP_REVISION                        &&
@@ -74,10 +86,14 @@ method script {
     $with-github-credentials git push --tags                        || exit 1
 
     # {$*SCRIPT_STAGE = 'Rakudo: Sign the tarball'}
-    gpg -b --armor rakudo-YYYY.MM.tar.gz
+    gpg --batch --no-tty --passphrase-fd 0 -b \\
+        --armor rakudo-$rakudo-ver.tar.gz                           || exit 1
+    $gpg-keyphrase
+
+    cp rakudo-$rakudo-ver.tar.gz* $dir-tarballs                     &&
+    cd $release-dir                                                 || exit 1
+
+    # {$*SCRIPT_STAGE = 'Rakudo: indicate release succeeded'}
+    echo '$na-msg Rakudo release DONE'                              || exit 1
     SHELL_SCRIPT_END
 }
-
-    $with-gpg-passphrase git tag -u $tag-email \\
-        -s -a -m 'tag release $nqp-ver' $nqp-ver                    &&
-    $with-github-credentials git push --tags                        || exit 1

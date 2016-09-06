@@ -13,6 +13,8 @@ start {
 
 with $rel {
     my $*SCRIPT_STAGE = 'unset';
-    .run: $_ for <fresh-start nqp-null>;
+    for <fresh-start  nqp-full  rakudo-full> {
+        .run: $^step;
+    }
     with .end { say colored $_, 'bold white on_red' }
 };

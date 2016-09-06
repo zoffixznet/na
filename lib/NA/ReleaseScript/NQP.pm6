@@ -55,7 +55,7 @@ method script {
     cp nqp-$nqp-ver.tar.gz* $dir-tarballs                           &&
     cd $release-dir                                                 || exit 1
 
-    # {$*SCRIPT_STAGE = 'Indicate release succeeded'}
+    # {$*SCRIPT_STAGE = 'NQP: indicate release succeeded'}
     echo '$na-msg nqp release DONE'                                 || exit 1
     SHELL_SCRIPT_END
 }
