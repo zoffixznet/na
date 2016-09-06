@@ -3,10 +3,14 @@ use NA::Config;
 
 constant $user          is export = 'cpan';
 constant $host          is export = '104.196.37.91';
+constant $cores         is export = (12 * 1.3).Int; # mult is for TEST_JOBS
 # constant $user          is export = 'zoffix';
 # constant $host          is export = 'perl6.party';
 constant $moar-ver      is export = '2016.08-35-g5108035';
 constant $nqp-ver       is export = '2016.09';
+constant $rakudo-ver    is export = '2016.09';
+constant $rakudo-rver   is export = '103';
+constant $rakudo-backends is export = 'moar'; # 'ALL'
 constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
 constant $doc-repo      is export = 'https://github.com/perl6/doc';
 constant $rakudo-repo   is export = 'https://github.com/zoffixznet/rakudo';
