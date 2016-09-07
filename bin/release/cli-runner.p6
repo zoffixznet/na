@@ -13,6 +13,7 @@ start {
 
 with $rel {
     my $*SCRIPT_STAGE = 'unset';
+    # <fresh-start  nqp-full  rakudo-full>
     for <fresh-start  nqp-full  rakudo-full> {
         .run: $^step;
     }

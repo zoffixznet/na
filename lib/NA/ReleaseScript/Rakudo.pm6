@@ -4,22 +4,29 @@ use NA::ReleaseConstants;
 method script {
     return qq:to/SHELL_SCRIPT_END/;
     # {$*SCRIPT_STAGE = 'Rakudo: clone Rakudo'}
+    rm -fr $dir-rakudo
     git clone $rakudo-repo $dir-rakudo                              || exit 1
 
     # {$*SCRIPT_STAGE = 'Rakudo: generate release announcement'}
     if [ ! -e docs/announce/$rakudo-ver.md ] ; then
         rm -fr $dir-temp
-        mkdir $dir-temp
-        cd $dir-temp
-        git clone $nqp-repo
-        git clone $doc-repo
-        git clone $moar-repo
-        git clone $roast-repo
-        cd $dir-rakudo
-        $*EXECUTABLE tools/create-release-announcement.pl       \\
+        mkdir $dir-temp                                             &&
+        cd $dir-temp                                                &&
+        git clone $nqp-repo                                         &&
+        git clone $doc-repo                                         &&
+        git clone $moar-repo                                        &&
+        git clone $roast-repo                                       &&
+        cd $dir-rakudo                                              || exit 1
+        $perl6-source
+        perl6 tools/create-release-announcement.pl              \\
+                --doc=$dir-temp/doc                             \\
+                --nqp=$dir-temp/nqp                             \\
+                --moar=$dir-temp/MoarVM                         \\
+                --roast=$dir-temp/roast                         \\
             > docs/announce/$rakudo-ver.md                          &&
-        git commit -m 'Generate release announcement for        \\
-            $rakudo-ver' docs/announce/$rakudo-ver.md               || exit 1
+        git add docs/announce/$rakudo-ver.md                        &&
+        git commit -m                                           \\
+            'Generate release announcement for $rakudo-ver'         || exit 1
     fi
 
     cd $dir-rakudo                                                  || exit 1
@@ -41,13 +48,15 @@ method script {
     make test                                                       || exit 1
 
     # {$*SCRIPT_STAGE = 'Rakudo: install Inline::Perl5'}
+    $perl5-source
     git clone https://github.com/tadzik/panda                       &&
     export PATH=`pwd`/install/bin:\$PATH                            &&
     cd panda                                                        &&
     perl6 bootstrap.pl                                              &&
     cd ..                                                           &&
     export PATH=`pwd`/install/share/perl6/site/bin:\$PATH           &&
-    panda install Inline::Perl5                                     || exit 1
+    panda install Inline::Perl5                                     &&
+    ./perl6 -MInline::Perl5 -e ''                                   || exit 1
 
     # {$*SCRIPT_STAGE = 'Rakudo: make stresstest (master)'}
     TEST_JOBS=$cores make stresstest                                &&
@@ -67,14 +76,22 @@ method script {
     tar -xvvf rakudo-$rakudo-ver.tar.gz                             &&
     cd rakudo-$rakudo-ver                                           || exit 1
 
+    # {$*SCRIPT_STAGE = 'Rakudo: (release tarball) build and make test'}
+    perl Configure.pl --gen-moar --backends=$rakudo-backends        &&
+    make                                                            &&
+    make install                                                    &&
+    make test                                                       || exit 1
+
     # {$*SCRIPT_STAGE = 'Rakudo: (tarball testing) install Inline::Perl5'}
+    $perl5-source
     git clone https://github.com/tadzik/panda                       &&
     export PATH=`pwd`/install/bin:\$PATH                            &&
     cd panda                                                        &&
     perl6 bootstrap.pl                                              &&
     cd ..                                                           &&
     export PATH=`pwd`/install/share/perl6/site/bin:\$PATH           &&
-    panda install Inline::Perl5                                     || exit 1
+    panda install Inline::Perl5                                     &&
+    ./perl6 -MInline::Perl5 -e ''                                   || exit 1
 
     # {$*SCRIPT_STAGE = 'Rakudo: make stresstest (tarball testing)'}
     TEST_JOBS=$cores make stresstest                                || exit 1
