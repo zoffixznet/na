@@ -1,61 +1,102 @@
-unit class NA::ReleaseScript::NQP;
+use NA::ReleaseScript;
 use NA::ReleaseConstants;
 
-method script {
-    return qq:to/SHELL_SCRIPT_END/;
-    # {$*SCRIPT_STAGE = 'NQP: Clone repo'}
-    git clone $nqp-repo nqp                                         &&
-    cd nqp                                                          || exit 1
+unit class NA::ReleaseScript::NQP does NA::ReleaseScript;
 
-    # {$*SCRIPT_STAGE = 'NQP: Bump MoarVM version'}
+method prefix { 'nqp-' }
+method steps {
+    return  clone       => step1-clone,
+            # bump-vers   => step2-bump-versions,
+            build       => step3-build,
+            tar         => step4-tar,
+            tar-build   => step5-tar-build,
+            tag         => step6-tag,
+            tar-sign    => step7-tar-sign,
+            tar-copy    => step8-tar-copy,
+}
+
+sub step1-clone {
+    return qq:to/SHELL_SCRIPT_END/;
+    git clone $nqp-repo nqp                                         &&
+    cd nqp                                                          ||
+    \{ echo '$na-fail NQP: Clone repo'; exit 1; \}
+    SHELL_SCRIPT_END
+}
+
+sub step2-bump-versions {
+    return qq:to/SHELL_SCRIPT_END/;
     echo '$moar-ver' > tools/build/MOAR_REVISION                    &&
     git commit -m 'bump MoarVM version to $moar-ver' \\
-        tools/build/MOAR_REVISION                                   || exit 1
+        tools/build/MOAR_REVISION                                   ||
+    \{ echo '$na-fail NQP: Bump MoarVM version'; exit 1; \}
 
-    # {$*SCRIPT_STAGE = 'NQP: Bump nqp version'}
     echo '$nqp-ver' > VERSION                                       &&
     git commit -m 'bump VERSION to $nqp-ver' VERSION                &&
-    $with-github-credentials git push                               || exit 1
+    $with-github-credentials git push                               ||
+    \{ echo '$na-fail NQP: Bump nqp version'; exit 1; \}
+    SHELL_SCRIPT_END
+}
 
-    # {$*SCRIPT_STAGE = 'NQP: Build and test'}
+sub step3-build {
+    return qq:to/SHELL_SCRIPT_END/;
     perl Configure.pl --gen-moar --backend=moar,jvm                 &&
         make                                                        &&
         make m-test                                                 &&
         make j-test                                                 &&
-        echo "$na-msg nqp tests OK"                                 || exit 1
+        echo "$na-msg nqp tests OK"                                 ||
+        \{ echo '$na-fail NQP: build and test'; exit 1; \}
+    SHELL_SCRIPT_END
+}
 
-    # {$*SCRIPT_STAGE
-        = 'NQP: Make release and copy over the tarball to testing area'}
+sub step4-tar {
+    return qq:to/SHELL_SCRIPT_END/;
     make release VERSION=$nqp-ver                                   &&
-        cp nqp-$nqp-ver.tar.gz $dir-temp                            &&
-        cd $dir-temp                                                &&
-        tar -xvvf nqp-$nqp-ver.tar.gz                               &&
-        cd nqp-$nqp-ver                                             || exit 1
+    cp nqp-$nqp-ver.tar.gz $dir-temp                                &&
+    cd $dir-temp                                                    &&
+    tar -xvvf nqp-$nqp-ver.tar.gz                                    &&
+    cd nqp-$nqp-ver                                                 ||
+    \{
+        echo '$na-fail NQP: Make release tarball and copy testing area';
+        exit 1;
+    \}
+    SHELL_SCRIPT_END
+}
 
-    # {$*SCRIPT_STAGE = 'NQP: Build and test the release tarball'}
+sub step5-tar-build {
+    return qq:to/SHELL_SCRIPT_END/;
     perl Configure.pl --gen-moar --backend=moar,jvm                 &&
-        make                                                        &&
-        make m-test                                                 &&
-        make j-test                                                 &&
-        echo "$na-msg nqp release tarball tests OK"                 || exit 1
+    make                                                            &&
+    make m-test                                                     &&
+    make j-test                                                     &&
+    echo "$na-msg nqp release tarball tests OK"                     ||
+    \{ echo '$na-fail NQP: Build and test the release tarball'; exit 1; \}
+    SHELL_SCRIPT_END
+}
 
-    # {$*SCRIPT_STAGE = 'NQP: Go back to nqp dir so we could sign stuff'}
-    cd $dir-nqp                                                     || exit 1
-
-    # {$*SCRIPT_STAGE = 'NQP: Tag nqp'}
+sub step6-tag {
+    return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-nqp                                                     &&
     $with-gpg-passphrase git tag -u $tag-email \\
         -s -a -m 'tag release $nqp-ver' $nqp-ver                    &&
-    $with-github-credentials git push --tags                        || exit 1
+    $with-github-credentials git push --tags                        ||
+    \{ echo '$na-fail NQP: Tag nqp'; exit 1; \}
+    SHELL_SCRIPT_END
+}
 
-    # {$*SCRIPT_STAGE = 'NQP: Sign the tarball'}
+sub step7-tar-sign {
+    return qq:to/SHELL_SCRIPT_END/;
     gpg --batch --no-tty --passphrase-fd 0 -b \\
-        --armor nqp-$nqp-ver.tar.gz                                 || exit 1
+        --armor nqp-$nqp-ver.tar.gz                                 ||
+    \{ echo '$na-fail NQP: Sign the tarball'; exit 1; \}
     $gpg-keyphrase
+    SHELL_SCRIPT_END
+}
 
+sub step8-tar-copy {
+    return qq:to/SHELL_SCRIPT_END/;
     cp nqp-$nqp-ver.tar.gz* $dir-tarballs                           &&
-    cd $release-dir                                                 || exit 1
-
-    # {$*SCRIPT_STAGE = 'NQP: indicate release succeeded'}
-    echo '$na-msg nqp release DONE'                                 || exit 1
+    cd $release-dir                                                 &&
+    echo '$na-msg nqp release DONE'                                 ||
+    \{ echo '$na-fail NQP: copy tarball to release dir'; exit 1; \}
     SHELL_SCRIPT_END
 }

@@ -2,14 +2,22 @@ unit class NA::Releaser;
 
 use NA::RemoteShell;
 use NA::ReleaseConstants;
-use NA::ReleaseScript::FreshStart;
+use NA::ReleaseScript::Pre;
 use NA::ReleaseScript::NQP;
 use NA::ReleaseScript::Rakudo;
 
+constant %Cats = %(
+    pre => NA::ReleaseScript::Pre,
+    nqp => NA::ReleaseScript::NQP,
+    r   => NA::ReleaseScript::Rakudo
+);
+
 has NA::RemoteShell $!shell;
 has Channel         $.messages = Channel.new;
+has Channel         $.failures = Channel.new;
 has Channel         $.out      = Channel.new;
 has Channel         $.err      = Channel.new;
+
 
 submethod BUILD {
     $!shell .= new;
@@ -30,17 +38,22 @@ method end {
         $!out.close;
         $!err.close;
         $!messages.close;
+        $!failures.close;
         .return;
     }
 }
 
 method run ($what) {
-    $!shell.send: do given $what {
-        when 'fresh-start' { NA::ReleaseScript::FreshStart.script;      }
-        when 'nqp-full'    { NA::ReleaseScript::NQP       .script;      }
-        when 'rakudo-full' { NA::ReleaseScript::Rakudo    .script;      }
-        default            { die "I don't know how to release `$what`"; }
+    my @steps = flat do given $what {
+        when 'pre-full' { NA::ReleaseScript::Pre.steps».value;   }
+        when 'nqp-full' { NA::ReleaseScript::NQP.steps».value;   }
+        when 'r-full'   { NA::ReleaseScript::Rakudo.steps».value;}
+        when /^ $<cat>=[@(%Cats.keys)] '-' $<step>=.+ / {
+            %Cats{~$<cat>}.step: ~$<step> or return "No such step: $<step>";
+        }
+        default { return "I don't know how to execute `$what`"; }
     }
+    $!shell.send: $_ for @steps;
 }
 
 method !in ($in, Bool :$err) {
@@ -52,5 +65,7 @@ method !in ($in, Bool :$err) {
     if $err { $!err.send: $_ for $mes.lines }
     else    { $!out.send: $_ for $mes.lines }
     $!messages.send: ~$<msg>
-        if not $err and $mes ~~ /$na-msg \s* $<msg>=\N+/;
+        if not $err and $mes ~~ /$na-msg  \s* $<msg>=\N+/;
+    $!failures.send: ~$<msg>
+        if not $err and $mes ~~ /$na-fail \s* $<msg>=\N+/;
 }

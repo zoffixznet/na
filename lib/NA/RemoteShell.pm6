@@ -17,14 +17,13 @@ method launch (
 
 method send (Str $what) {
     CATCH { default { say 'Remote shell exploded. Aborting release'; } }
-
     await $!proc.write: "$what\n".encode;
 }
 
 method end {
     self.send: "\nexit;";
     my $result-proc = await $!prom;
-    return "ABNORMAL EXIT! Release aborted at: $*SCRIPT_STAGE"
+    return "ABNORMAL EXIT!"
         if $result-proc.exitcode != 0;
     return Nil;
 }

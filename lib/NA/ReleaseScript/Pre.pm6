@@ -1,15 +1,22 @@
-unit class NA::ReleaseScript::FreshStart;
+use NA::ReleaseScript;
 use NA::ReleaseConstants;
 
-method script {
+unit class NA::ReleaseScript::Pre does NA::ReleaseScript;
+
+method prefix { 'pre-' }
+method steps {
+    return (blank-slate => step1-blank-slate,);
+}
+
+sub step1-blank-slate {
     return qq:to/SHELL_SCRIPT_END/;
-    # {$*SCRIPT_STAGE = 'Fresh start: Start with a blank slate'}
     rm -fr $release-dir                                             &&
     mkdir $release-dir                                              &&
     cd $release-dir                                                 &&
     mkdir $dir-temp                                                 &&
     mkdir $dir-nqp                                                  &&
     mkdir $dir-rakudo                                               &&
-    mkdir $dir-tarballs                                             || exit 1
+    mkdir $dir-tarballs                                             ||
+    \{ echo '$na-fail Start with a blank slate'; exit 1; \}
     SHELL_SCRIPT_END
 }

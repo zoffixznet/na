@@ -2,7 +2,7 @@ unit module NA::ReleaseConstants;
 use NA::Config;
 
 constant $user          is export = 'cpan';
-constant $host          is export = '104.196.37.32';
+constant $host          is export = '104.196.145.160';
 constant $cores         is export = (12 * 1.3).Int; # mult is for TEST_JOBS
 # constant $user          is export = 'zoffix';
 # constant $host          is export = 'perl6.party';
@@ -32,6 +32,7 @@ constant $dir-nqp       is export = $release-dir ~ 'nqp';
 constant $dir-rakudo    is export = $release-dir ~ 'rakudo';
 constant $dir-tarballs  is export = $release-dir ~ 'tarballs';
 constant $na-msg        is export = 'NeuralAnomaly RELEASE STATUS:';
+constant $na-fail       is export = 'NeuralAnomaly FAILURE MESSAGE:';
 
 constant $with-github-credentials is export
     = "(sleep 6; echo -e '$github-user\\n';"
