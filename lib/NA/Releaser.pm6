@@ -6,11 +6,9 @@ use NA::ReleaseScript::Pre;
 use NA::ReleaseScript::NQP;
 use NA::ReleaseScript::Rakudo;
 
-constant %Cats = %(
-    pre => NA::ReleaseScript::Pre,
-    nqp => NA::ReleaseScript::NQP,
-    r   => NA::ReleaseScript::Rakudo
-);
+constant @Cats = pre => NA::ReleaseScript::Pre,
+                 nqp => NA::ReleaseScript::NQP,
+                 r   => NA::ReleaseScript::Rakudo;
 
 has NA::RemoteShell $!shell;
 has Channel         $.messages = Channel.new;
@@ -33,6 +31,10 @@ submethod BUILD {
         END
 }
 
+method available-steps {
+    return flat 'all', @Cats».key, @Cats».value».available-steps;
+}
+
 method end {
     given $!shell.end {
         $!out.close;
@@ -45,13 +47,15 @@ method end {
 
 method run ($what) {
     my @steps = flat do given $what {
-        when 'pre-full' { NA::ReleaseScript::Pre.steps».value;   }
-        when 'nqp-full' { NA::ReleaseScript::NQP.steps».value;   }
-        when 'r-full'   { NA::ReleaseScript::Rakudo.steps».value;}
-        when /^ $<cat>=[@(%Cats.keys)] '-' $<step>=.+ / {
-            %Cats{~$<cat>}.step: ~$<step> or return "No such step: $<step>";
+        when 'all' { @Cats».value».steps».value.map: *.flat }
+        when 'pre' { NA::ReleaseScript::Pre.steps».value;   }
+        when 'nqp' { NA::ReleaseScript::NQP.steps».value;   }
+        when 'r'   { NA::ReleaseScript::Rakudo.steps».value;}
+        when /^ $<cat>=[@(@Cats.hash.keys)] '-' $<step>=.+ / {
+            @Cats.hash{~$<cat>}.step: ~$<step>
+                or fail "No such step: $<step>";
         }
-        default { return "I don't know how to execute `$what`"; }
+        default { fail "I don't know how to execute `$what`"; }
     }
     $!shell.send: $_ for @steps;
 }

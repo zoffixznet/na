@@ -7,7 +7,7 @@ method prefix { 'r-' }
 method steps {
     return  clone      => step1-clone,
             prep-ann   => step2-prep-announcement,
-            # bump-vers  => step3-bump-versions,
+            bump-vers  => step3-bump-versions,
             build      => step4-build,
             p5         => step5-p5,
             stress     => step6-stress,

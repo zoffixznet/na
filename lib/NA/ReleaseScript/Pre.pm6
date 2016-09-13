@@ -16,7 +16,8 @@ sub step1-blank-slate {
     mkdir $dir-temp                                                 &&
     mkdir $dir-nqp                                                  &&
     mkdir $dir-rakudo                                               &&
-    mkdir $dir-tarballs                                             ||
+    mkdir $dir-tarballs                                             &&
+    echo '$na-msg Prep done'                                        ||
     \{ echo '$na-fail Start with a blank slate'; exit 1; \}
     SHELL_SCRIPT_END
 }

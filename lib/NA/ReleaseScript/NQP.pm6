@@ -6,7 +6,7 @@ unit class NA::ReleaseScript::NQP does NA::ReleaseScript;
 method prefix { 'nqp-' }
 method steps {
     return  clone       => step1-clone,
-            # bump-vers   => step2-bump-versions,
+            bump-vers   => step2-bump-versions,
             build       => step3-build,
             tar         => step4-tar,
             tar-build   => step5-tar-build,

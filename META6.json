@@ -15,7 +15,7 @@
     "provides"     : {
         "NA::UA"              : "lib/NA/UA.pm6",
         "NA::Config"          : "lib/NA/Config.pm6",
-        "NA::Plugin::Release" : "lib/NA/Plugin/Release.pm6",
+        "NA::Plugin::Release" : "lib/NA/Plugin/Release.pm6"
     },
     "authors" : ["Zoffix Znet"],
     "support" : {
