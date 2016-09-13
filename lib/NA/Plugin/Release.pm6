@@ -1,6 +1,12 @@
 unit class NA::Plugin::Release;
+use NA::Releaser;
 use NA::UA;
+use IRC::Client::Message;
 use URI::Escape;
+use Terminal::ANSIColor;
+
+subset BotAdmin of IRC::Client::Message
+    where .host eq any <unaffiliated/zoffix  localhost  127.0.0.1>;
 
 has $.r6-url = %*ENV<NA_R6_HOST> || 'http://perl6.fail/';
 
@@ -38,4 +44,37 @@ multi method irc-to-me ($e where /:i ^ 'blockers' $ /) {
     };
 
     Nil;
+}
+
+multi method irc-to-me (BotAdmin $e where /:i ^ 'steps'           $/ ) {
+    join ' ', NA::Releaser.available-steps;
+}
+multi method irc-to-me (BotAdmin $e where /:i ^ 'run' $<steps>=.+ $/ ) {
+    my @steps = $<steps>.words;
+    $_ eq NA::Releaser.available-steps.any or return "`$_` is not a valid step"
+        for @steps;
+
+    start {
+        my $rel = NA::Releaser.new;
+        start { react {
+            whenever $rel.messages { $e.reply: "♥♥♥♥♥♥ $^mes"    }
+            whenever $rel.failures { $e.reply: "☠☠☠☠☠☠ $^mes"    }
+            whenever $rel.err      { say colored $^mes, 'yellow' }
+            whenever $rel.out      { say colored $^mes, 'white'  }
+        }}
+
+        $rel.run: $_ for @steps;
+
+        sleep 2; # give the other messages a chance to be sent out
+        with $rel.end {
+            # Abnormal exit
+            say colored $_, 'bold white on_red';
+            $e.reply: "☠☠☠☠☠☠☠☠☠☠ $_";
+        }
+        else {
+            $e.reply: "♥♥♥ All Done! ♥♥♥";
+        }
+
+        Nil;
+    }
 }

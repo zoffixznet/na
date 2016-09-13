@@ -74,6 +74,7 @@ sub step3-bump-versions {
 
 sub step4-build {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-rakudo                                                  &&
     perl Configure.pl --gen-moar --backends=$rakudo-backends        &&
     make                                                            &&
     make install                                                    &&
@@ -85,6 +86,7 @@ sub step4-build {
 sub step5-p5 {
     return qq:to/SHELL_SCRIPT_END/;
     $perl5-source
+    cd $dir-rakudo                                                  &&
     git clone https://github.com/tadzik/panda                       &&
     export PATH=`pwd`/install/bin:\$PATH                            &&
     cd panda                                                        &&
@@ -99,6 +101,7 @@ sub step5-p5 {
 
 sub step6-stress {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-rakudo                                                  &&
     TEST_JOBS=$cores make stresstest                                &&
     echo "$na-msg Rakudo stresstest (master) OK"                    ||
     \{ echo '$na-fail Rakudo: make stresstest (master)'; exit 1; \}
@@ -107,6 +110,7 @@ sub step6-stress {
 
 sub step7-stress-v6c {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-rakudo                                                  &&
     cd t/spec                                                       &&
     git checkout 6.c-errata                                         &&
     cd ../..                                                        &&
@@ -118,6 +122,7 @@ sub step7-stress-v6c {
 
 sub step8-tar {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-rakudo                                                  &&
     make release VERSION=$rakudo-ver                                &&
     cp rakudo-$rakudo-ver.tar.gz $dir-temp                          &&
     cd $dir-temp                                                    &&
@@ -132,6 +137,8 @@ sub step8-tar {
 
 sub step9-tar-build {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-temp                                                    &&
+    cd rakudo-$rakudo-ver                                           &&
     perl Configure.pl --gen-moar --backends=$rakudo-backends        &&
     make                                                            &&
     make install                                                    &&
@@ -143,6 +150,8 @@ sub step9-tar-build {
 sub step10-tar-p5 {
     return qq:to/SHELL_SCRIPT_END/;
     $perl5-source
+    cd $dir-temp                                                    &&
+    cd rakudo-$rakudo-ver                                           &&
     git clone https://github.com/tadzik/panda                       &&
     export PATH=`pwd`/install/bin:\$PATH                            &&
     cd panda                                                        &&
@@ -160,6 +169,8 @@ sub step10-tar-p5 {
 
 sub step11-tar-stress {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-temp                                                    &&
+    cd rakudo-$rakudo-ver                                           &&
     TEST_JOBS=$cores make stresstest                                ||
     \{ echo '$na-fail Rakudo: make stresstest (tarball testing)'; exit 1; \}
     SHELL_SCRIPT_END
