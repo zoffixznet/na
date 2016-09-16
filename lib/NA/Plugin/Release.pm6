@@ -1,19 +1,17 @@
 unit class NA::Plugin::Release;
 use NA::Releaser;
-use NA::UA;
+use NA::R6;
 use IRC::Client::Message;
 use URI::Escape;
 use Terminal::ANSIColor;
 
+has $!r6 = NA::R6.new;
+
 subset BotAdmin of IRC::Client::Message
     where .host eq any <unaffiliated/zoffix  localhost  127.0.0.1>;
 
-has $.r6-url = %*ENV<NA_R6_HOST> || 'http://perl6.fail/';
-
 multi method irc-to-me ($e where /:i ^ ['status' | 'stats'] $ /) {
-    my $res = try {
-        ua-get-json $!r6-url ~ "release/stats.json"
-    } or return 'Error accessing R6 API';
+    my $res = $!r6.stats or return 'Error accessing R6 API';
 
     my $status = '✔';
     $status    = '✘'
@@ -28,10 +26,7 @@ multi method irc-to-me ($e where /:i ^ ['status' | 'stats'] $ /) {
 }
 
 multi method irc-to-me ($e where /:i ^ 'blockers' $ /) {
-    my $res = try {
-        ua-get-json $!r6-url ~ "release/blockers.json"
-    } or return 'Error accessing R6 API';
-
+    my $res = $!r6.blockers or return 'Error accessing R6 API';
     return 'There are no release blockers' unless $res<tickets>.elems;
 
     my $n = $res<total_blockers>;
