@@ -1,4 +1,6 @@
-unit class NA::Plugin::Release;
+use IRC::Client;
+unit class NA::Plugin::Release does IRC::Client::Plugin;
+use NA::ReleaseConstants;
 use NA::Config;
 use NA::Releaser;
 use NA::R6;
@@ -45,24 +47,25 @@ multi method irc-to-me (BotAdmin $e where /:i ^ 'steps'           $/ ) {
 }
 
 multi method irc-to-me (BotAdmin $e where /:i ^ 'run' $<steps>=.+ $/ ) {
-    say "Starting steps run: $<steps>.words()";
-    spurt conf<release-log>, ''
-        if $<steps>.words.any eq any <pre pre-blank-slate all>;
-    self!run-steps: $e, $<steps>.words;
+    my @steps = $<steps>.words;
+    say "Starting steps run: @steps[]";
+    unlink conf<release-log> if @steps.any eq any <pre pre-blank-slate all>;
+    self!run-steps: $e, @steps.words,
+        :full-release( @steps.any eq any <post post-scp all> );
 }
 
 multi method irc-to-me (
     BotAdmin $e where /:i ^ 'cut ' ['a'|'the'] ' release' $/
 ) {
     note "Starting a release";
-    spurt conf<release-log>, '';
+    unlink conf<release-log>;
     $e.reply: ｢Will do! If you're feeling particularly naughty, you can watch ｣
         ~ ｢me at http://perl6.fail/release/progress or go look ｣
         ~ ｢at some cats http://www.lolcats.com/｣;
-    self!run-steps: $e, 'all';
+    self!run-steps: $e, 'all', :full-release;
 }
 
-method !run-steps ($e, *@steps) {
+method !run-steps ($e, *@steps, :$full-release) {
     $_ eq NA::Releaser.available-steps.any or return "`$_` is not a valid step"
         for @steps;
 
@@ -100,7 +103,22 @@ method !run-steps ($e, *@steps) {
             $e.reply: "☠☠☠☠☠☠☠☠☠☠ $_";
         }
         else {
-            $e.reply: "♥♥♥ All Done! ♥♥♥";
+            if $full-release {
+                $e.reply: ｢🎺🎺🎺📯📯📯📯📯📯🌈🌈🌈📦📦📦｣;
+                sleep .2;
+                $e.reply: "The release of **Rakudo #$rakudo-rver $rakudo-ver"
+                          ~ '** has now been completed';
+                sleep .2;
+                $e.reply: ｢🎺🎺🎺📯📯📯📯📯📯🌈🌈🌈📦📦📦｣;
+                sleep .2;
+                $.irc.send: :where($e.channel), :text(
+                    "\o[001]ACTION celebrates with an "
+                            ~ "appropriate amount of fun\o[001]"
+                );
+            }
+            else {
+                $e.reply: "♥♥♥ All Done! ♥♥♥";
+            }
         }
 
         Nil;

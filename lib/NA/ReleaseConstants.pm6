@@ -15,13 +15,19 @@ constant $cores         is export = 28;
 
 ## Volatiles
 constant $moar-ver      is export = '2016.09';
-constant $nqp-ver       is export = '2016.09';
+constant $nqp-ver       is export = '2016.08.1-67-g630fade';
 constant $rakudo-ver    is export = '2016.09';
 constant $rakudo-rver   is export = '103';
 constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
 constant $rakudo-repo   is export = 'https://github.com/zoffixznet/rakudo';
 constant $nqp-scp       is export = 'zoffix@perl6.party:~/temp/rel/nqp/';
-constant $rakudo-scp    is export = 'zoffix@perl6.party:~/temp/rel/rakudo';
+constant $rakudo-scp    is export = 'zoffix@perl6.party:~/temp/rel/rakudo/';
+
+
+# constant $nqp-scp     is export
+    # = 'rakudo@rakudo.org:~/public_html/downloads/nqp/';
+# constant $rakudo-scp  is export
+    # = 'rakudo@rakudo.org:~/public_html/downloads/rakudo/';
 
 
 ## Stables
