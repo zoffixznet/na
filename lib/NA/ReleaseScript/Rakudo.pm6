@@ -58,18 +58,29 @@ sub step2-prep-announcement {
 }
 
 sub step3-bump-versions {
-    return qq:to/SHELL_SCRIPT_END/;
-    cd $dir-rakudo                                                  &&
-    echo $nqp-ver > tools/build/NQP_REVISION                        &&
-    git commit -m '[release] bump NQP revision'                 \\
-        tools/build/NQP_REVISION                                    &&
+    return %*ENV<NA_DEBUG>
+    ?? qq:to/SHELL_SCRIPT_END/
+        cd $dir-rakudo
+        echo $nqp-ver > tools/build/NQP_REVISION
+        git commit -m '[release] bump NQP revision'                 \\
+            tools/build/NQP_REVISION
+        echo $rakudo-ver > VERSION
+        git commit -m '[release] bump VERSION to $rakudo-ver' VERSION
+        git pull --rebase
+        $with-github-credentials git push
+        SHELL_SCRIPT_END
+    !! qq:to/SHELL_SCRIPT_END/;
+        cd $dir-rakudo                                                  &&
+        echo $nqp-ver > tools/build/NQP_REVISION                        &&
+        git commit -m '[release] bump NQP revision'                 \\
+            tools/build/NQP_REVISION                                    &&
 
-    echo $rakudo-ver > VERSION                                      &&
-    git commit -m '[release] bump VERSION to $rakudo-ver' VERSION   &&
-    git pull --rebase                                               &&
-    $with-github-credentials git push                               ||
-    \{ echo '$na-fail Rakudo: bump NQP and Rakudo versions'; exit 1; \}
-    SHELL_SCRIPT_END
+        echo $rakudo-ver > VERSION                                      &&
+        git commit -m '[release] bump VERSION to $rakudo-ver' VERSION   &&
+        git pull --rebase                                               &&
+        $with-github-credentials git push                               ||
+        \{ echo '$na-fail Rakudo: bump NQP and Rakudo versions'; exit 1; \}
+        SHELL_SCRIPT_END
 }
 
 sub step4-build {

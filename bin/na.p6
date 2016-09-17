@@ -8,6 +8,7 @@ use lib <
 use IRC::Client;
 use NA::Config;
 use NA::Plugin::Release;
+use NA::Plugin::Babble;
 
 class NA::Info {
     multi method irc-to-me ($ where /^\s* help \s*$/) {
@@ -29,4 +30,5 @@ class NA::Info {
     :plugins(
         NA::Info.new,
         NA::Plugin::Release.new,
+        NA::Plugin::Babble.new,
     );

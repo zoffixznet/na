@@ -1,4 +1,5 @@
 unit class NA::Plugin::Release;
+use NA::Config;
 use NA::Releaser;
 use NA::R6;
 use IRC::Client::Message;
@@ -6,9 +7,7 @@ use URI::Escape;
 use Terminal::ANSIColor;
 
 has $!r6 = NA::R6.new;
-
-subset BotAdmin of IRC::Client::Message
-    where .host eq any <unaffiliated/zoffix  localhost  127.0.0.1>;
+subset BotAdmin of IRC::Client::Message where .host eq conf<bot-admins>.any;
 
 multi method irc-to-me ($e where /:i ^ ['status' | 'stats'] $ /) {
     my $res = $!r6.stats or return 'Error accessing R6 API';
@@ -44,18 +43,52 @@ multi method irc-to-me ($e where /:i ^ 'blockers' $ /) {
 multi method irc-to-me (BotAdmin $e where /:i ^ 'steps'           $/ ) {
     join ' ', NA::Releaser.available-steps;
 }
+
 multi method irc-to-me (BotAdmin $e where /:i ^ 'run' $<steps>=.+ $/ ) {
-    my @steps = $<steps>.words;
+    say "Starting steps run: $<steps>.words()";
+    spurt conf<release-log>, ''
+        if $<steps>.words.any eq any <pre pre-blank-slate all>;
+    self!run-steps: $e, $<steps>.words;
+}
+
+multi method irc-to-me (
+    BotAdmin $e where /:i ^ 'cut ' ['a'|'the'] ' release' $/
+) {
+    note "Starting a release";
+    spurt conf<release-log>, '';
+    $e.reply: ｢Will do! If you're feeling particularly naughty, you can watch ｣
+        ~ ｢me at http://perl6.fail/release/progress or go look ｣
+        ~ ｢at some cats http://www.lolcats.com/｣;
+    self!run-steps: $e, 'all';
+}
+
+method !run-steps ($e, *@steps) {
     $_ eq NA::Releaser.available-steps.any or return "`$_` is not a valid step"
         for @steps;
 
     start {
         my $rel = NA::Releaser.new;
         start { react {
-            whenever $rel.messages { $e.reply: "♥♥♥♥♥♥ $^mes"    }
-            whenever $rel.failures { $e.reply: "☠☠☠☠☠☠ $^mes"    }
-            whenever $rel.err      { say colored $^mes, 'yellow' }
-            whenever $rel.out      { say colored $^mes, 'white'  }
+            whenever $rel.messages {
+                given "♥♥♥♥♥♥ $^mes" {
+                    $e.reply: $_;
+                    send-to-log "MSGOUT: $_";
+                }
+            }
+            whenever $rel.failures {
+                given "☠☠☠☠☠☠ $^mes" {
+                    $e.reply: $_;
+                    send-to-log "MSGERR: $_";
+                };
+            }
+            whenever $rel.err {
+                say colored $^mes, 'yellow';
+                send-to-log "STDERR: $^mes";
+            }
+            whenever $rel.out {
+                say colored $^mes, 'white';
+                send-to-log "STDOUT: $^mes";
+            }
         }}
 
         $rel.run: $_ for @steps;
@@ -73,3 +106,5 @@ multi method irc-to-me (BotAdmin $e where /:i ^ 'run' $<steps>=.+ $/ ) {
         Nil;
     }
 }
+
+sub send-to-log ($what) { spurt :append, conf<release-log>, "$what\n"; }

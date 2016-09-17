@@ -5,10 +5,12 @@ use NA::ReleaseConstants;
 use NA::ReleaseScript::Pre;
 use NA::ReleaseScript::NQP;
 use NA::ReleaseScript::Rakudo;
+use NA::ReleaseScript::Post;
 
-constant @Cats = pre => NA::ReleaseScript::Pre,
-                 nqp => NA::ReleaseScript::NQP,
-                 r   => NA::ReleaseScript::Rakudo;
+constant @Cats = pre  => NA::ReleaseScript::Pre,
+                 nqp  => NA::ReleaseScript::NQP,
+                 r    => NA::ReleaseScript::Rakudo,
+                 post => NA::ReleaseScript::Post;
 
 has NA::RemoteShell $!shell;
 has Channel         $.messages = Channel.new;
@@ -47,10 +49,11 @@ method end {
 
 method run ($what) {
     my @steps = flat do given $what {
-        when 'all' { @Cats».value».steps».value.map: *.flat }
-        when 'pre' { NA::ReleaseScript::Pre.steps».value;   }
-        when 'nqp' { NA::ReleaseScript::NQP.steps».value;   }
-        when 'r'   { NA::ReleaseScript::Rakudo.steps».value;}
+        when 'all'  { @Cats».value».steps».value.map: *.flat  }
+        when 'pre'  { NA::ReleaseScript::Pre.steps».value;    }
+        when 'nqp'  { NA::ReleaseScript::NQP.steps».value;    }
+        when 'r'    { NA::ReleaseScript::Rakudo.steps».value; }
+        when 'post' { NA::ReleaseScript::Post.steps».value;   }
         when /^ $<cat>=[@(@Cats.hash.keys)] '-' $<step>=.+ / {
             @Cats.hash{~$<cat>}.step: ~$<step>
                 or fail "No such step: $<step>";

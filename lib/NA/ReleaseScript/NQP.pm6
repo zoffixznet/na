@@ -24,25 +24,35 @@ sub step1-clone {
 }
 
 sub step2-bump-versions {
-    return qq:to/SHELL_SCRIPT_END/;
-    echo '$moar-ver' > tools/build/MOAR_REVISION                    &&
-    git commit -m 'bump MoarVM version to $moar-ver' \\
-        tools/build/MOAR_REVISION                                   ||
-    \{ echo '$na-fail NQP: Bump MoarVM version'; exit 1; \}
+    return %*ENV<NA_DEBUG>
+    ?? qq:to/SHELL_SCRIPT_END/
+        echo '$moar-ver' > tools/build/MOAR_REVISION
+        git commit -m 'bump MoarVM version to $moar-ver' \\
+            tools/build/MOAR_REVISION
+        echo '$nqp-ver' > VERSION
+        git commit -m 'bump VERSION to $nqp-ver' VERSION
+        $with-github-credentials git push
+        SHELL_SCRIPT_END
+    !! qq:to/SHELL_SCRIPT_END/;
+        echo '$moar-ver' > tools/build/MOAR_REVISION                    &&
+        git commit -m 'bump MoarVM version to $moar-ver' \\
+            tools/build/MOAR_REVISION                                   ||
+        \{ echo '$na-fail NQP: Bump MoarVM version'; exit 1; \}
 
-    echo '$nqp-ver' > VERSION                                       &&
-    git commit -m 'bump VERSION to $nqp-ver' VERSION                &&
-    $with-github-credentials git push                               ||
-    \{ echo '$na-fail NQP: Bump nqp version'; exit 1; \}
-    SHELL_SCRIPT_END
+        echo '$nqp-ver' > VERSION                                       &&
+        git commit -m 'bump VERSION to $nqp-ver' VERSION                &&
+        $with-github-credentials git push                               ||
+        \{ echo '$na-fail NQP: Bump nqp version'; exit 1; \}
+        SHELL_SCRIPT_END
 }
 
 sub step3-build {
     return qq:to/SHELL_SCRIPT_END/;
-    perl Configure.pl --gen-moar --backend=moar,jvm                 &&
+    perl Configure.pl --gen-moar \\
+            --backend=moar{',jvm' unless %*ENV<NA_NO_JVM> }         &&
         make                                                        &&
         make m-test                                                 &&
-        make j-test                                                 &&
+        {'make j-test &&' unless %*ENV<NA_NO_JVM> }
         echo "$na-msg nqp tests OK"                                 ||
         \{ echo '$na-fail NQP: build and test'; exit 1; \}
     SHELL_SCRIPT_END
@@ -64,10 +74,11 @@ sub step4-tar {
 
 sub step5-tar-build {
     return qq:to/SHELL_SCRIPT_END/;
-    perl Configure.pl --gen-moar --backend=moar,jvm                 &&
+    perl Configure.pl --gen-moar \\
+        --backend=moar{',jvm' unless %*ENV<NA_NO_JVM> }             &&
     make                                                            &&
     make m-test                                                     &&
-    make j-test                                                     &&
+    {'make j-test &&' unless %*ENV<NA_NO_JVM> }
     echo "$na-msg nqp release tarball tests OK"                     ||
     \{ echo '$na-fail NQP: Build and test the release tarball'; exit 1; \}
     SHELL_SCRIPT_END
