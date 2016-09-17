@@ -96,7 +96,7 @@ method !run-steps ($e, *@steps, :$full-release) {
 
         $rel.run: $_ for @steps;
 
-        sleep 2; # give the other messages a chance to be sent out
+        sleep 3; # give the other messages a chance to be sent out
         with $rel.end {
             # Abnormal exit
             say colored $_, 'bold white on_red';
