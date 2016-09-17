@@ -13,21 +13,28 @@ constant $cores         is export = 28;
 # constant $host          is export = 'perl6.party';
 # constant $cores         is export = (4 * 1.6).Int;
 
-## Volatiles
+# ## Volatiles -- TEST
+# constant $moar-ver      is export = '2016.09';
+# constant $nqp-ver       is export = '2016.08.1-67-g630fade';
+# constant $rakudo-ver    is export = '2016.09';
+# constant $rakudo-rver   is export = '103';
+# constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
+# constant $rakudo-repo   is export = 'https://github.com/zoffixznet/rakudo';
+# constant $nqp-scp       is export = 'zoffix@perl6.party:~/temp/rel/nqp/';
+# constant $rakudo-scp    is export = 'zoffix@perl6.party:~/temp/rel/rakudo/';
+
+## Volatiles -- PRODUCTION
 constant $moar-ver      is export = '2016.09';
-constant $nqp-ver       is export = '2016.08.1-67-g630fade';
+constant $nqp-ver       is export = '2016.09';
 constant $rakudo-ver    is export = '2016.09';
 constant $rakudo-rver   is export = '103';
-constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
-constant $rakudo-repo   is export = 'https://github.com/zoffixznet/rakudo';
-constant $nqp-scp       is export = 'zoffix@perl6.party:~/temp/rel/nqp/';
-constant $rakudo-scp    is export = 'zoffix@perl6.party:~/temp/rel/rakudo/';
+constant $nqp-repo      is export = 'https://github.com/perl6/nqp';
+constant $rakudo-repo   is export = 'https://github.com/rakudo/rakudo';
+constant $nqp-scp       is export
+    = 'rakudo@rakudo.org:~/public_html/downloads/nqp/';
+constant $rakudo-scp    is export
+    = 'rakudo@rakudo.org:~/public_html/downloads/rakudo/';
 
-
-# constant $nqp-scp     is export
-    # = 'rakudo@rakudo.org:~/public_html/downloads/nqp/';
-# constant $rakudo-scp  is export
-    # = 'rakudo@rakudo.org:~/public_html/downloads/rakudo/';
 
 
 ## Stables
