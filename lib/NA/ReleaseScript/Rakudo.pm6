@@ -104,7 +104,7 @@ sub step5-p5 {
     perl6 bootstrap.pl                                              &&
     cd ..                                                           &&
     export PATH=`pwd`/install/share/perl6/site/bin:\$PATH           &&
-    panda install Inline::Perl5                                     &&
+    panda --notests install Inline::Perl5                           &&
     ./perl6 -MInline::Perl5 -e ''                                   ||
     \{ echo '$na-fail Rakudo: install Inline::Perl5'; exit 1; \}
     SHELL_SCRIPT_END
@@ -169,7 +169,7 @@ sub step10-tar-p5 {
     perl6 bootstrap.pl                                              &&
     cd ..                                                           &&
     export PATH=`pwd`/install/share/perl6/site/bin:\$PATH           &&
-    panda install Inline::Perl5                                     &&
+    panda --notests install Inline::Perl5                           &&
     ./perl6 -MInline::Perl5 -e ''                                   ||
     \{
         echo '$na-fail Rakudo: (tarball testing) install Inline::Perl5';

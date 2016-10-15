@@ -61,7 +61,7 @@ multi method irc-to-me (
     unlink conf<release-log>;
     $e.reply: ｢Will do! If you're feeling particularly naughty, you can watch ｣
         ~ ｢me at http://perl6.fail/release/progress or go look ｣
-        ~ ｢at some cats http://www.lolcats.com/｣;
+        ~ ｢at some cats http://icanhas.cheezburger.com/lolcats｣;
     self!run-steps: $e, 'all', :full-release;
 }
 
