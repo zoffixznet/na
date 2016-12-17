@@ -24,26 +24,27 @@ sub step1-clone {
 }
 
 sub step2-bump-versions {
-    return %*ENV<NA_DEBUG>
-    ?? qq:to/SHELL_SCRIPT_END/
-        echo '$moar-ver' > tools/build/MOAR_REVISION
-        git commit -m 'bump MoarVM version to $moar-ver' \\
-            tools/build/MOAR_REVISION
-        echo '$nqp-ver' > VERSION
-        git commit -m 'bump VERSION to $nqp-ver' VERSION
-        $with-github-credentials git push
-        SHELL_SCRIPT_END
-    !! qq:to/SHELL_SCRIPT_END/;
+    return qq:to/SHELL_SCRIPT_END/;
+    if grep -Fxq '$moar-ver' tools/build/MOAR_REVISION
+    then
+        echo '$na-msg NQP: MoarVM version appears to be already bumped';
+    else
         echo '$moar-ver' > tools/build/MOAR_REVISION                    &&
         git commit -m 'bump MoarVM version to $moar-ver' \\
             tools/build/MOAR_REVISION                                   ||
         \{ echo '$na-fail NQP: Bump MoarVM version'; exit 1; \}
+    fi
 
+    if grep -Fxq '$nqp-ver' VERSION
+    then
+        echo '$na-msg NQP: NQP version appears to be already bumped';
+    else
         echo '$nqp-ver' > VERSION                                       &&
-        git commit -m 'bump VERSION to $nqp-ver' VERSION
+        git commit -m 'bump VERSION to $nqp-ver' VERSION                &&
         $with-github-credentials git push                               ||
         \{ echo '$na-fail NQP: Bump nqp version'; exit 1; \}
-        SHELL_SCRIPT_END
+    fi
+    SHELL_SCRIPT_END
 }
 
 sub step3-build {
