@@ -55,7 +55,7 @@ sub step3-build {
     cd $dir-nqp                                                     &&
     perl Configure.pl --gen-moar \\
             --backend=moar{',jvm' unless %*ENV<NA_NO_JVM> }         &&
-    make                                                            &&
+    make -j$cores                                                   &&
     \{ echo '$na-fail NQP: build'; exit 1; \}
     SHELL_SCRIPT_END
 }
@@ -91,7 +91,7 @@ sub step6-tar-build {
     cd nqp-$nqp-ver                                                 &&
     perl Configure.pl --gen-moar \\
         --backend=moar{',jvm' unless %*ENV<NA_NO_JVM> }             &&
-    make                                                            &&
+    make -j$cores                                                   &&
     make m-test                                                     &&
     {'make j-test &&' unless %*ENV<NA_NO_JVM> }
     echo "$na-msg nqp release tarball tests OK"                     ||

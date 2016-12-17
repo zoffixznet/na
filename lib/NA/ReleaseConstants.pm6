@@ -6,7 +6,7 @@ use NA::Config;
 # constant $cores         is export = (4 * 1.6).Int; # mult is for TEST_JOBS
 
 constant $user          is export = 'cpan';
-constant $host          is export = '104.196.180.214';
+constant $host          is export = '104.196.54.117';
 constant $cores         is export = 28;
 
 # constant $user          is export = 'zoffix';
@@ -15,7 +15,7 @@ constant $cores         is export = 28;
 
 # Volatiles -- TEST
 constant $moar-ver      is export = '2016.12';
-constant $nqp-ver       is export = '2016.11-143-g0dce14b';
+constant $nqp-ver       is export = '2016.12';
 constant $rakudo-ver    is export = '2016.12';
 constant $rakudo-rver   is export = '106';
 constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';

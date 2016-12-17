@@ -90,7 +90,7 @@ sub step4-build {
     return qq:to/SHELL_SCRIPT_END/;
     cd $dir-rakudo                                                  &&
     perl Configure.pl --gen-moar --backends=$rakudo-backends        &&
-    make                                                            &&
+    make -j$cores                                                   &&
     make install                                                    &&
     make test                                                       ||
     \{ echo '$na-fail Rakudo: build and make test'; exit 1; \}
@@ -154,7 +154,7 @@ sub step9-tar-build {
     cd $dir-temp                                                    &&
     cd rakudo-$rakudo-ver                                           &&
     perl Configure.pl --gen-moar --backends=$rakudo-backends        &&
-    make                                                            &&
+    make -j$cores                                                   &&
     make install                                                    &&
     make test                                                       ||
     \{ echo '$na-fail Rakudo: (release tarball) build and make test'; exit 1; \}
