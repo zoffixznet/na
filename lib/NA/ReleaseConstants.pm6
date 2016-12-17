@@ -14,20 +14,20 @@ constant $cores         is export = 28;
 # constant $cores         is export = (4 * 1.6).Int;
 
 # Volatiles -- TEST
-constant $moar-ver      is export = '2016.11';
-constant $nqp-ver       is export = '2016.10-86-g798eeb3';
-constant $rakudo-ver    is export = '2016.11';
-constant $rakudo-rver   is export = '105';
+constant $moar-ver      is export = '2016.12';
+constant $nqp-ver       is export = '2016.11-143-g0dce14b';
+constant $rakudo-ver    is export = '2016.12';
+constant $rakudo-rver   is export = '106';
 constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
 constant $rakudo-repo   is export = 'https://github.com/zoffixznet/rakudo';
 constant $nqp-scp       is export = 'zoffix@perl6.party:~/temp/rel/nqp/';
 constant $rakudo-scp    is export = 'zoffix@perl6.party:~/temp/rel/rakudo/';
 
 ## Volatiles -- PRODUCTION
-#constant $moar-ver      is export = '2016.11';
-#constant $nqp-ver       is export = '2016.11';
-#constant $rakudo-ver    is export = '2016.11';
-#constant $rakudo-rver   is export = '105';
+#constant $moar-ver      is export = '2016.12';
+#constant $nqp-ver       is export = '2016.12';
+#constant $rakudo-ver    is export = '2016.12';
+#constant $rakudo-rver   is export = '106';
 #constant $nqp-repo      is export = 'https://github.com/perl6/nqp';
 #constant $rakudo-repo   is export = 'https://github.com/rakudo/rakudo';
 #constant $nqp-scp       is export
@@ -42,7 +42,7 @@ constant $rakudo-backends is export = 'moar'; # 'ALL'
 constant $doc-repo      is export = 'https://github.com/perl6/doc';
 constant $moar-repo     is export = 'https://github.com/MoarVM/MoarVM';
 constant $roast-repo    is export = 'https://github.com/perl6/roast';
-constant $release-dir   is export = '/tmp/release/';
+constant $release-dir   is export = '/home/cpan/release-tmp/';
 constant $tag-email     is export = 'cpan@zoffix.com';
 constant $perl5-source  is export = 'source ~/perl5/perlbrew/etc/bashrc';
 constant $perl6-source  is export = 'export PATH=~/.rakudobrew/bin'
