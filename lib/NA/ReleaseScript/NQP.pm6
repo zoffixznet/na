@@ -8,11 +8,12 @@ method steps {
     return  clone       => step1-clone,
             bump-vers   => step2-bump-versions,
             build       => step3-build,
-            tar         => step4-tar,
-            tar-build   => step5-tar-build,
-            tag         => step6-tag,
-            tar-sign    => step7-tar-sign,
-            tar-copy    => step8-tar-copy,
+            test        => step4-test,
+            tar         => step5-tar,
+            tar-build   => step6-tar-build,
+            tag         => step7-tag,
+            tar-sign    => step8-tar-sign,
+            tar-copy    => step9-tar-copy,
 }
 
 sub step1-clone {
@@ -54,15 +55,22 @@ sub step3-build {
     cd $dir-nqp                                                     &&
     perl Configure.pl --gen-moar \\
             --backend=moar{',jvm' unless %*ENV<NA_NO_JVM> }         &&
-        make                                                        &&
-        make m-test                                                 &&
-        {'make j-test &&' unless %*ENV<NA_NO_JVM> }
-        echo "$na-msg nqp tests OK"                                 ||
-        \{ echo '$na-fail NQP: build and test'; exit 1; \}
+    make                                                            &&
+    \{ echo '$na-fail NQP: build'; exit 1; \}
     SHELL_SCRIPT_END
 }
 
-sub step4-tar {
+sub step4-test {
+    return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-nqp                                                      &&
+    make m-test                                                      &&
+    {'make j-test &&' unless %*ENV<NA_NO_JVM> }
+    echo "$na-msg nqp tests OK"                                      ||
+    \{ echo '$na-fail NQP: test'; exit 1; \}
+    SHELL_SCRIPT_END
+}
+
+sub step5-tar {
     return qq:to/SHELL_SCRIPT_END/;
     cd $dir-nqp                                                     &&
     make release VERSION=$nqp-ver                                   &&
@@ -77,7 +85,7 @@ sub step4-tar {
     SHELL_SCRIPT_END
 }
 
-sub step5-tar-build {
+sub step6-tar-build {
     return qq:to/SHELL_SCRIPT_END/;
     cd $dir-temp                                                    &&
     cd nqp-$nqp-ver                                                 &&
@@ -91,7 +99,7 @@ sub step5-tar-build {
     SHELL_SCRIPT_END
 }
 
-sub step6-tag {
+sub step7-tag {
     return qq:to/SHELL_SCRIPT_END/;
     cd $dir-nqp                                                     &&
     $with-gpg-passphrase git tag -u $tag-email \\
@@ -101,7 +109,7 @@ sub step6-tag {
     SHELL_SCRIPT_END
 }
 
-sub step7-tar-sign {
+sub step8-tar-sign {
     return qq:to/SHELL_SCRIPT_END/;
     cd $dir-nqp                                                     &&
     gpg --batch --no-tty --passphrase-fd 0 -b \\
@@ -111,7 +119,7 @@ sub step7-tar-sign {
     SHELL_SCRIPT_END
 }
 
-sub step8-tar-copy {
+sub step9-tar-copy {
     return qq:to/SHELL_SCRIPT_END/;
     cd $dir-nqp                                                     &&
     cp nqp-$nqp-ver.tar.gz* $dir-tarballs                           &&
