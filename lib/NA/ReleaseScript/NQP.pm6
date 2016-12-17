@@ -40,7 +40,7 @@ sub step2-bump-versions {
         \{ echo '$na-fail NQP: Bump MoarVM version'; exit 1; \}
 
         echo '$nqp-ver' > VERSION                                       &&
-        git commit -m 'bump VERSION to $nqp-ver' VERSION                &&
+        git commit -m 'bump VERSION to $nqp-ver' VERSION
         $with-github-credentials git push                               ||
         \{ echo '$na-fail NQP: Bump nqp version'; exit 1; \}
         SHELL_SCRIPT_END
