@@ -59,6 +59,9 @@ sub step2-prep-announcement {
 
 sub step3-bump-versions {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-rakudo ||
+    \{ echo '$na-fail Rakudo: bump versions'; exit 1; \}
+
     if grep -Fxq '$nqp-ver' tools/build/MOAR_REVISION
     then
         echo '$na-msg Rakudo: NQP version appears to be already bumped';

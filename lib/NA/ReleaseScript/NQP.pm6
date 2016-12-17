@@ -17,14 +17,16 @@ method steps {
 
 sub step1-clone {
     return qq:to/SHELL_SCRIPT_END/;
-    git clone $nqp-repo nqp                                         &&
-    cd nqp                                                          ||
+    git clone $nqp-repo $dir-nqp                                        ||
     \{ echo '$na-fail NQP: Clone repo'; exit 1; \}
     SHELL_SCRIPT_END
 }
 
 sub step2-bump-versions {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-nqp                                                         ||
+    \{ echo '$na-fail NQP: Bump versions'; exit 1; \}
+
     if grep -Fxq '$moar-ver' tools/build/MOAR_REVISION
     then
         echo '$na-msg NQP: MoarVM version appears to be already bumped';
@@ -49,6 +51,7 @@ sub step2-bump-versions {
 
 sub step3-build {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-nqp                                                     &&
     perl Configure.pl --gen-moar \\
             --backend=moar{',jvm' unless %*ENV<NA_NO_JVM> }         &&
         make                                                        &&
@@ -61,10 +64,11 @@ sub step3-build {
 
 sub step4-tar {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-nqp                                                     &&
     make release VERSION=$nqp-ver                                   &&
     cp nqp-$nqp-ver.tar.gz $dir-temp                                &&
     cd $dir-temp                                                    &&
-    tar -xvvf nqp-$nqp-ver.tar.gz                                    &&
+    tar -xvvf nqp-$nqp-ver.tar.gz                                   &&
     cd nqp-$nqp-ver                                                 ||
     \{
         echo '$na-fail NQP: Make release tarball and copy testing area';
@@ -75,6 +79,8 @@ sub step4-tar {
 
 sub step5-tar-build {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-temp                                                    &&
+    cd nqp-$nqp-ver                                                 &&
     perl Configure.pl --gen-moar \\
         --backend=moar{',jvm' unless %*ENV<NA_NO_JVM> }             &&
     make                                                            &&
@@ -97,6 +103,7 @@ sub step6-tag {
 
 sub step7-tar-sign {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-nqp                                                     &&
     gpg --batch --no-tty --passphrase-fd 0 -b \\
         --armor nqp-$nqp-ver.tar.gz                                 ||
     \{ echo '$na-fail NQP: Sign the tarball'; exit 1; \}
@@ -106,6 +113,7 @@ sub step7-tar-sign {
 
 sub step8-tar-copy {
     return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-nqp                                                     &&
     cp nqp-$nqp-ver.tar.gz* $dir-tarballs                           &&
     cd $release-dir                                                 &&
     echo '$na-msg nqp release DONE'                                 ||
