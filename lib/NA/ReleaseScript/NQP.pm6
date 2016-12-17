@@ -55,7 +55,7 @@ sub step3-build {
     cd $dir-nqp                                                     &&
     perl Configure.pl --gen-moar \\
             --backend=moar{',jvm' unless %*ENV<NA_NO_JVM> }         &&
-    make -j$cores                                                   &&
+    make -j$cores                                                   ||
     \{ echo '$na-fail NQP: build'; exit 1; \}
     SHELL_SCRIPT_END
 }
