@@ -26,7 +26,7 @@ class NA::Info {
     :name<zofbot-na>,
     :host(%*ENV<NA_IRC_HOST> // 'irc.freenode.net'),
     :channels( %*ENV<NA_DEBUG> ?? '#zofbot' !! |<#perl6  #perl6-dev  #zofbot>),
-    |(:password(conf<irc-pass>) if conf<irc-pass>),
+#    |(:password(conf<irc-pass>) if conf<irc-pass>),
     :debug,
     :plugins(
         NA::Info.new,
