@@ -6,7 +6,7 @@ use NA::Config;
 # constant $cores         is export = (4 * 1.6).Int; # mult is for TEST_JOBS
 
 constant $user          is export = 'cpan';
-constant $host          is export = '104.196.54.117';
+constant $host          is export = '104.196.60.223';
 constant $cores         is export = 28;
 
 # constant $user          is export = 'zoffix';
