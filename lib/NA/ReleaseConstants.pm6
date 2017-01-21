@@ -13,27 +13,27 @@ constant $cores         is export = 28;
 # constant $host          is export = 'perl6.party';
 # constant $cores         is export = (4 * 1.6).Int;
 
-## Volatiles -- TEST
-# constant $moar-ver      is export = '2016.12';
-# constant $nqp-ver       is export = '2016.11-144-g92d1403';
-# constant $rakudo-ver    is export = '2016.12';
-# constant $rakudo-rver   is export = '106';
-# constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
-# constant $rakudo-repo   is export = 'https://github.com/zoffixznet/rakudo';
-# constant $nqp-scp       is export = 'zoffix@perl6.party:~/temp/rel/nqp/';
-# constant $rakudo-scp    is export = 'zoffix@perl6.party:~/temp/rel/rakudo/';
+# Volatiles -- TEST
+constant $moar-ver      is export = '2016.12';
+constant $nqp-ver       is export = '2016.11-144-g92d1403';
+constant $rakudo-ver    is export = '2016.12';
+constant $rakudo-rver   is export = '106';
+constant $nqp-repo      is export = 'https://github.com/zoffixznet/nqp';
+constant $rakudo-repo   is export = 'https://github.com/zoffixznet/rakudo';
+constant $nqp-scp       is export = 'zoffix@perl6.party:~/temp/rel/nqp/';
+constant $rakudo-scp    is export = 'zoffix@perl6.party:~/temp/rel/rakudo/';
 
 # Volatiles -- PRODUCTION
-constant $moar-ver      is export = '2017.01';
-constant $nqp-ver       is export = '2017.01';
-constant $rakudo-ver    is export = '2017.01';
-constant $rakudo-rver   is export = '107';
-constant $nqp-repo      is export = 'https://github.com/perl6/nqp';
-constant $rakudo-repo   is export = 'https://github.com/rakudo/rakudo';
-constant $nqp-scp       is export
-  = 'rakudo@rakudo.org:~/public_html/downloads/nqp/';
-constant $rakudo-scp    is export
-  = 'rakudo@rakudo.org:~/public_html/downloads/rakudo/';
+#constant $moar-ver      is export = '2017.01';
+#constant $nqp-ver       is export = '2017.01';
+#constant $rakudo-ver    is export = '2017.01';
+#constant $rakudo-rver   is export = '107';
+#constant $nqp-repo      is export = 'https://github.com/perl6/nqp';
+#constant $rakudo-repo   is export = 'https://github.com/rakudo/rakudo';
+#constant $nqp-scp       is export
+#  = 'rakudo@rakudo.org:~/public_html/downloads/nqp/';
+#constant $rakudo-scp    is export
+#  = 'rakudo@rakudo.org:~/public_html/downloads/rakudo/';
 
 
 
