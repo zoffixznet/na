@@ -14,7 +14,9 @@ sub step1-scp {
     cd $dir-tarballs                                                        &&
     scp nqp-$nqp-ver.tar.gz* $nqp-scp                                       &&
     scp rakudo-$rakudo-ver.tar.gz* $rakudo-scp                              &&
-    echo '$na-msg Post: upload tarballs to rakudo.org'                      ||
-    \{ echo '$na-fail Post: upload tarballs to rakudo.org'; exit 1; \}
+    scp nqp-$nqp-ver.tar.gz* $nqp-scp-p6                                    &&
+    scp rakudo-$rakudo-ver.tar.gz* $rakudo-scp-p6                           &&
+    echo '$na-msg Post: upload tarballs to rakudo.org and rakudo.perl6.org' ||
+    \{ echo '$na-fail Post: upload tarballs'; exit 1; \}
     SHELL_SCRIPT_END
 }
