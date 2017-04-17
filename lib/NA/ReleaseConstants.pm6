@@ -6,7 +6,7 @@ use NA::Config;
 # constant $cores         is export = (4 * 1.6).Int; # mult is for TEST_JOBS
 
 constant $user          is export = 'cpan';
-constant $host          is export = '35.185.4.135';
+constant $host          is export = '104.196.144.36';
 constant $cores         is export = 28;
 
 # constant $user          is export = 'zoffix';
@@ -26,10 +26,10 @@ constant $nqp-scp-p6    is export = 'zoffix@perl6.party:~/temp/rel/nqp/';
 constant $rakudo-scp-p6 is export = 'zoffix@perl6.party:~/temp/rel/rakudo/';
 
 # Volatiles -- PRODUCTION
-#constant $moar-ver      is export = '2017.03';
-#constant $nqp-ver       is export = '2017.03';
-#constant $rakudo-ver    is export = '2017.03';
-#constant $rakudo-rver   is export = '109';
+#constant $moar-ver      is export = '2017.04';
+#constant $nqp-ver       is export = '2017.04';
+#constant $rakudo-ver    is export = '2017.04';
+#constant $rakudo-rver   is export = '110';
 #constant $nqp-repo      is export = 'https://github.com/perl6/nqp';
 #constant $rakudo-repo   is export = 'https://github.com/rakudo/rakudo';
 #constant $nqp-scp       is export
