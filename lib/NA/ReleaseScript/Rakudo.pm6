@@ -6,7 +6,7 @@ unit class NA::ReleaseScript::Rakudo does NA::ReleaseScript;
 method prefix { 'r-' }
 method steps {
     return
-            custom     => step0-custom,
+            # custom     => step0-custom,
             clone      => step1-clone,
             prep-ann   => step2-prep-announcement,
             bump-vers  => step3-bump-versions,
@@ -23,14 +23,14 @@ method steps {
             tar-copy   => step14-tar-copy,
 }
 
-sub step0-custom {
-    return qq:to/SHELL_SCRIPT_END/;
-    cd $dir-rakudo                                                  &&
-    t/fudgeandrun t/spec/S32-io/io-handle.t
-    echo '$na-msg Rakudo: custom command'
-    exit 1
-    SHELL_SCRIPT_END
-}
+# sub step0-custom {
+#     return qq:to/SHELL_SCRIPT_END/;
+#     cd $dir-rakudo                                                  &&
+#     t/fudgeandrun t/spec/S32-io/io-handle.t
+#     echo '$na-msg Rakudo: custom command'
+#     exit 1
+#     SHELL_SCRIPT_END
+# }
 
 sub step1-clone {
     return qq:to/SHELL_SCRIPT_END/;
