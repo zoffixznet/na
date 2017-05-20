@@ -101,13 +101,13 @@ sub step5-p5 {
     return qq:to/SHELL_SCRIPT_END/;
     $perl5-source
     cd $dir-rakudo                                                  &&
-    git clone https://github.com/tadzik/panda                       &&
+    git clone https://github.com/ugexe/zef                          &&
     export PATH=`pwd`/install/bin:\$PATH                            &&
-    cd panda                                                        &&
-    perl6 bootstrap.pl                                              &&
+    cd zef                                                          &&
+    perl6 -Ilib bin/zef install .                                   &&
     cd ..                                                           &&
     export PATH=`pwd`/install/share/perl6/site/bin:\$PATH           &&
-    panda --notests install Inline::Perl5                           &&
+    zef --/test install Inline::Perl5                               &&
     ./perl6 -MInline::Perl5 -e ''                                   ||
     \{ echo '$na-fail Rakudo: install Inline::Perl5'; exit 1; \}
     SHELL_SCRIPT_END
@@ -166,13 +166,13 @@ sub step10-tar-p5 {
     $perl5-source
     cd $dir-temp                                                    &&
     cd rakudo-$rakudo-ver                                           &&
-    git clone https://github.com/tadzik/panda                       &&
+    git clone https://github.com/ugexe/zef                          &&
     export PATH=`pwd`/install/bin:\$PATH                            &&
-    cd panda                                                        &&
-    perl6 bootstrap.pl                                              &&
+    cd zef                                                          &&
+    perl6 -Ilib bin/zef install .                                   &&
     cd ..                                                           &&
     export PATH=`pwd`/install/share/perl6/site/bin:\$PATH           &&
-    panda --notests install Inline::Perl5                           &&
+    zef --/test install Inline::Perl5                               &&
     ./perl6 -MInline::Perl5 -e ''                                   ||
     \{
         echo '$na-fail Rakudo: (tarball testing) install Inline::Perl5';
