@@ -11,6 +11,7 @@ method steps {
             build      => step4-build,
             p5         => step5-p5,
             stress     => step6-stress,
+            custom     => step6-1-custom,
             stress-v6c => step7-stress-v6c,
             tar        => step8-tar,
             tar-build  => step9-tar-build,
@@ -119,6 +120,15 @@ sub step6-stress {
     TEST_JOBS=$cores make stresstest                                &&
     echo "$na-msg Rakudo stresstest (master) OK"                    ||
     \{ echo '$na-fail Rakudo: make stresstest (master)'; exit 1; \}
+    SHELL_SCRIPT_END
+}
+
+sub step6-1-custom {
+    return qq:to/SHELL_SCRIPT_END/;
+    cd $dir-rakudo                                                  &&
+    t/fudgeandrun t/spec/S32-io/io-handle.t
+    echo '$na-msg Rakudo: custom command'
+    exit 1
     SHELL_SCRIPT_END
 }
 
