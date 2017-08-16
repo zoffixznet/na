@@ -17,8 +17,9 @@ class NA::Info {
     multi method irc-to-me ($ where /^\s* source \s*$/) {
         "See: https://github.com/zoffixznet/na";
     }
-
+  
     multi method irc-to-me ($ where /'bot' \s* 'snack'/) { "om nom nom nom"; }
+    multi method irc-to-me ($) { "Use releasable6 bot instead. e.g. try: releasable6: status" }
 }
 
 .run with IRC::Client.new:
@@ -30,6 +31,6 @@ class NA::Info {
     :debug,
     :plugins(
         NA::Info.new,
-        NA::Plugin::Release.new,
-        NA::Plugin::Babble.new,
+#        NA::Plugin::Release.new,
+ #       NA::Plugin::Babble.new,
     );
